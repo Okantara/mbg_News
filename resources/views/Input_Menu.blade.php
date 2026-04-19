@@ -90,10 +90,6 @@
                 {{ $o->Kategori_penerima }}
               </span>
 
-              <span class="text-[8px] text-gray-600 text-center">
-                {{ $o->user->name ?? 'N/A' }}
-              </span>
-
             </div>
           @endforeach
         </div>

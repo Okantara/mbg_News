@@ -11,14 +11,21 @@ use Illuminate\Support\Facades\DB;
 class MenuViewController extends Controller
 {
     // Tampilkan form input menu dan daftar menu
-    public function index()
-    {
-        $kategori = Kategori::with('items')->get();
-        $ompreng = Ompreng::with('user')->get();
-        $menus = Menu::with('items', 'omprengs')->get();
+    public function index(Request $request)
+{
+    $query = Menu::with('items', 'omprengs');
 
-        return view('Input_Menu', compact('kategori', 'ompreng', 'menus'));
+    if (!$request->has('all')) {
+        $query->where('status', 'draft');
     }
+
+    $menus = $query->get();
+
+    $kategori = Kategori::with('items')->get();
+    $ompreng = Ompreng::with('user')->get();
+
+    return view('Input_Menu', compact('kategori', 'ompreng', 'menus'));
+}
 
     // Simpan menu baru
     public function store(Request $request)
@@ -56,20 +63,26 @@ class MenuViewController extends Controller
             }
         }
 
-        // 3. Simpan ompreng dengan jumlah
-        if ($request->has('ompreng_jumlah')) {
-            foreach ($request->ompreng_jumlah as $omprengId => $jumlah) {
-                if ($jumlah > 0) {
-                    DB::table('menu_ompreng')->insert([
-                        'menu_id' => $menu->id,
-                        'ompreng_id' => $omprengId,
-                        'jumlah' => $jumlah,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
+// 3. Simpan ompreng dengan jumlah
+if ($request->has('ompreng_jumlah')) {
+    foreach ($request->ompreng_jumlah as $omprengId => $jumlah) {
+        if ($jumlah > 0) {
+
+            $ompreng = Ompreng::find($omprengId);
+
+            if ($ompreng) {
+                DB::table('menu_ompreng')->insert([
+                    'menu_id' => $menu->id,
+                    'ompreng_id' => $omprengId,
+                    'kategori_penerima' => $ompreng->Kategori_penerima, // ✅ FIX
+                    'jumlah' => $jumlah,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
             }
         }
+    }
+}
 
         return redirect()->back()->with('success', 'Menu berhasil disimpan');
     }

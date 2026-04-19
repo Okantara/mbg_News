@@ -22,8 +22,9 @@ class Item extends Model
     }
 
     // Relasi ke Menu melalui tabel pivot menu_detail
-    public function menus()
-    {
-        return $this->belongsToMany(Menu::class, 'menu_detail');
-    }
+public function menus()
+{
+    return $this->belongsToMany(Menu::class, 'menu_detail')
+        ->withPivot(['created_at', 'updated_at']);
+}
 }

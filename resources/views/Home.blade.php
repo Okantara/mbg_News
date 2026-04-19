@@ -21,14 +21,11 @@
 @forelse ($menus as $menu)
 
 @php
-    // pastikan selalu collection (aman dari null)
-    $omprengs = collect($menu->omprengs ?? []);
+        $omprengs = collect($menu->omprengs ?? []);
 
-    // grouping
-    $omprengGrouped = $omprengs->groupBy('kategori_penerima');
-
-    // total
-    $totalOmpreng = $omprengs->sum('jumlah');
+        $totalOmpreng = $omprengs->sum(function ($item) {
+            return $item->jumlah ?? 0;
+        });
 @endphp
 
 <div class="flex flex-col w-96 p-4 bg-blue-200 border border-gray-300 rounded-xl shadow">
@@ -53,30 +50,33 @@
     </div>
 
     <!-- DISTRIBUSI -->
-<div class="grid grid-cols-4 gap-2 p-2 bg-white rounded-lg mt-2 text-xs text-center">
+    @php
+        $omprengs = collect($menu->omprengs ?? []);
 
-    <div class="col-span-4 grid gap-2">
-        @forelse($menus as $menu)
+        $totalOmpreng = $omprengs->sum(function ($item) {
+            return $item->pivot->jumlah ?? 0;
+        });
+    @endphp
+
+    <div class="grid grid-cols-4 gap-2 p-2 bg-white rounded-lg mt-2 text-xs text-center">
+
+        <div class="col-span-4 grid gap-2">
             
             @forelse($menu->omprengs as $item)
                 <div class="bg-yellow-300 rounded px-2 py-1">
                     <div class="font-bold">
-                        {{ $item->jumlah ?? '-' }}
+                        {{$item->jumlah}}
                     </div>
                     <div class="text-xs">
-                        {{ $item->kategori_penerima ?? '-' }}
+                        {{ $item->kategori_penerima }}
                     </div>
                 </div>
             @empty
                 <p class="text-gray-400 text-xs">Tidak ada ompreng</p>
             @endforelse
 
-        @empty
-            <p class="text-gray-500">Tidak ada data menu</p>
-        @endforelse
+        </div>
     </div>
-
-</div>
 
     <!-- MENU ITEMS -->
 <div class="grid grid-cols-6 text-xs mt-3 gap-2">

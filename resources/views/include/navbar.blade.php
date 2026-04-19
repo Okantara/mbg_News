@@ -29,8 +29,8 @@
       <div onclick="event.stopPropagation()" 
            class="hidden absolute left-0 top-full mt-2 bg-white shadow-md min-w-[150px] rounded dropdown">
         <a href="{{ route('menu.index') }}" class="block px-4 py-2 text-xs hover:bg-gray-100 text-slate-950">Input Menu</a>
-        <a href="#" class="block px-4 py-2 text-xs hover:bg-gray-100 text-slate-950">Tabel Menu</a>
-        <a href="#" class="block px-4 py-2 text-xs hover:bg-gray-100 text-slate-950">Tabel Ompreng</a>
+        <a href="{{ route('rekap.menu') }}" class="block px-4 py-2 text-xs hover:bg-gray-100 text-slate-950">Tabel Menu</a>
+        <a href="{{ route('rekap.ompreng') }}" class="block px-4 py-2 text-xs hover:bg-gray-100 text-slate-950">Tabel Ompreng</a>
       </div>
     </div>
 

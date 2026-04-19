@@ -13,7 +13,7 @@ class Kategori extends Model
         'nama_kategori',
     ];
 
-    // Relasi ke Item
+    // // Relasi benar: kategori -> item
     public function items()
     {
         return $this->hasMany(Item::class);

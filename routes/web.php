@@ -14,6 +14,8 @@ use App\Http\Controllers\OmprengViewController;
 use App\Http\Controllers\MenuViewController;
 use App\Http\Controllers\MenuOmprengController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Rekap_Menu_Controller;
+use App\Http\Controllers\Rekap_Ompreng_Controller;
 
 // route untuk halaman utama
 Route::get('/', function () {
@@ -66,3 +68,10 @@ Route::apiResource('ompreng', OmprengController::class);
 
 Route::post('menus/{id}/attach-ompreng', [MenuOmprengController::class, 'attachOmpreng']);
 Route::delete('menus/{menuId}/detach-ompreng/{omprengId}', [MenuOmprengController::class, 'detachOmpreng']);
+
+// route untuk halaman rekap menu
+Route::get('/rekap-menu', [Rekap_Menu_Controller::class, 'index'])
+    ->name('rekap.menu');
+
+// route untuk halaman rekap ompreng
+Route::get('/rekap-ompreng', [Rekap_Ompreng_Controller::class, 'index'])->name('rekap.ompreng');

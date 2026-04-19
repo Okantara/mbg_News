@@ -11,25 +11,21 @@ class MenuOmpreng extends Model
 
     protected $table = 'menu_ompreng';
 
+    // Sesuaikan fillable dengan tabel menu_ompreng
     protected $fillable = [
         'menu_id',
+        // 'kategori_penerima', // Hapus jika tidak ada di tabel
         'ompreng_id',
-        'kategori_penerima',
         'jumlah',
     ];
 
     public function menu()
     {
-        return $this->belongsTo(Menu::class);
+        return $this->belongsTo(Menu::class, 'menu_id');
     }
 
     public function ompreng()
     {
-        return $this->belongsTo(Ompreng::class);
-    }
-
-    public function kategori()
-    {
-        return $this->belongsTo(Kategori::class, 'kategori_id');
+        return $this->belongsTo(Ompreng::class, 'ompreng_id');
     }
 }

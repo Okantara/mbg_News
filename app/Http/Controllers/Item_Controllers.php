@@ -17,14 +17,15 @@ class Item_Controllers extends Controller
     }
 
     // TAMBAH ITEM
-    public function store(Request $request)
-    {
-        $kategori = Kategori::find($request->kategori_id);
+public function store(Request $request)
+{
+    $kategori = Kategori::find($request->kategori_id);
 
-        Item::create([
-            'kategori_nama' => $kategori->id,
-            'nama_item' => $request->nama_item,
-        ]);
+    Item::create([
+        'kategori_id' => $request->kategori_id,
+        'nama_item' => $request->nama_item,
+        'kategori_nama' => $kategori->nama_kategori, // snapshot
+    ]);
 
         return redirect()->back()->with('success', 'Item berhasil ditambahkan');
     }
