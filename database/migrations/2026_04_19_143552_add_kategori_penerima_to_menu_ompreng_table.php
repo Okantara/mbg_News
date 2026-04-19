@@ -6,26 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('menu_ompreng', function (Blueprint $table) {
-            $table->foreignId('ompreng_id')
-                ->after('menu_id')
-                ->constrained('ompreng')
-                ->cascadeOnDelete();
+            $table->string('kategori_penerima')->nullable();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('menu_ompreng', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('ompreng_id');
+            $table->dropColumn('kategori_penerima');
         });
     }
 };

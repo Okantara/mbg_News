@@ -5,14 +5,10 @@
 @section('content')
 
 <main class="pt-5 px-5">
-  <div class="flex items-center justify-between pt-16">
+  <div class="flex items-center justify-center pt-16">
     <h1 class="text-2xl font-bold">
         Menu MBG <span>SMK 5</span>
     </h1>
-
-    <h2 class="text-2xl font-bold hover:underline">
-      <a href="#">Login</a>
-    </h2>
   </div>
 </main>
 

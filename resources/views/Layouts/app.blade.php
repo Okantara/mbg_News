@@ -1,70 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title')</title>
-    <!-- Tailwind CSS v3 CDN -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <!-- Google Fonts for sans-serif look -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap"
-      rel="stylesheet"
-    />
-    <style data-purpose="custom-typography">
-      body {
-        font-family: "Inter", sans-serif;
-        background-color: #ffffff;
-      }
-      .text-admin {
-        color: #333;
-        font-size: 2.5rem;
-        font-weight: 400;
-      }
-    </style>
-    <style data-purpose="custom-colors">
-      .bg-cyan-custom {
-        background-color: #00ccff;
-      }
-      .bg-yellow-custom {
-        background-color: #ffff00;
-      }
-      .border-custom {
-        border-color: #999;
-      }
-    </style>
-</head>
-<body class="p-0 m-0">
-    @include('include.navbar')
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    @yield('content')
+        <title>{{ config('app.name', 'Laravel') }}</title>
 
-<script>
-    function toggleMenu(event, element) {
-      event.stopPropagation();
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-      const dropdown = element.nextElementSibling;
+        <!-- Scripts -->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    </head>
+    <body class="font-sans antialiased">
+        <div class="min-h-screen bg-white">
+            @include('layouts.navigation')
+            
+            <!-- Page Heading -->
+            @isset($header)
+                <header class="bg-black shadow border">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        {{ $header }}
+                    </div>
+                </header>
+            @endisset
 
-      const isOpen = !dropdown.classList.contains("hidden");
-
-      // tutup semua dropdown
-      document.querySelectorAll(".dropdown").forEach(menu => {
-        menu.classList.add("hidden");
-      });
-
-      // buka jika sebelumnya tertutup
-      if (!isOpen) {
-        dropdown.classList.remove("hidden");
-      }
-    }
-
-    // klik di luar → tutup semua dropdown
-    document.addEventListener("click", function () {
-      document.querySelectorAll(".dropdown").forEach(menu => {
-        menu.classList.add("hidden");
-      });
-    });
-  </script>
-    
-</body>
+            <!-- Page Content -->
+            <main>
+                @yield('content')
+            </main>
+        </div>
+    </body>
 </html>

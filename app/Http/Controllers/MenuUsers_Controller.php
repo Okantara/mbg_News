@@ -15,7 +15,7 @@ class MenuUsers_Controller extends Controller
             'Admin',
             'Keuangan',
             'Relawan',
-            'Sppg'
+            'MBG'
         ])->get();
 
         return view('password', compact('users'));

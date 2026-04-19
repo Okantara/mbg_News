@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\Belanja_Controller;
 use App\Http\Controllers\Rekap_Belanja_controller;
 use App\Http\Controllers\Rekap_Operasional_Controller;
@@ -13,17 +16,23 @@ use App\Http\Controllers\OmprengController;
 use App\Http\Controllers\OmprengViewController;
 use App\Http\Controllers\MenuViewController;
 use App\Http\Controllers\MenuOmprengController;
-use App\Http\Controllers\HomeController;
+
 use App\Http\Controllers\Rekap_Menu_Controller;
 use App\Http\Controllers\Rekap_Ompreng_Controller;
 
-// route untuk halaman utama
-Route::get('/', function () {
-    return view('Home');
-})->name('home');
+Route::get('/home', [HomeController::class, 'index'])->middleware(['auth'])->name('Home');
 
- // route untuk halaman home
-Route::get('/', [HomeController::class, 'index'])->name('Home');
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
 
 // route untuk halaman biaya bahan (belanja)
 Route::resource('belanja', Belanja_Controller::class);
