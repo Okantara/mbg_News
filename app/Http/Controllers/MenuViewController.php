@@ -11,21 +11,25 @@ use Illuminate\Support\Facades\DB;
 class MenuViewController extends Controller
 {
     // Tampilkan form input menu dan daftar menu
-    public function index(Request $request)
-{
-    $query = Menu::with('items', 'omprengs');
+        public function index()
+    {
+        // MENU DRAFT (yang sudah kamu pakai)
+        $menus = Menu::with(['items', 'user'])
+            ->where('status', 'draft')
+            ->latest()
+            ->get();
 
-    if (!$request->has('all')) {
-        $query->where('status', 'draft');
+        // MENU APPROVED (untuk tabel hapus menu tayang)
+        $menusApproved = Menu::with(['items', 'user'])
+            ->where('status', 'approved')
+            ->latest()
+            ->get();
+
+        $kategori = Kategori::with('items')->get();
+        $ompreng = Ompreng::all();
+
+        return view('Input_Menu', compact('menus', 'menusApproved', 'kategori', 'ompreng'));
     }
-
-    $menus = $query->get();
-
-    $kategori = Kategori::with('items')->get();
-    $ompreng = Ompreng::with('user')->get();
-
-    return view('Input_Menu', compact('kategori', 'ompreng', 'menus'));
-}
 
     // Simpan menu baru
     public function store(Request $request)
@@ -91,7 +95,7 @@ if ($request->has('ompreng_jumlah')) {
     public function destroy($id)
     {
         $menu = Menu::findOrFail($id);
-        $menu->delete();
+        $menu->forceDelete();
 
         return redirect()->back()->with('success', 'Menu berhasil dihapus');
     }
@@ -104,5 +108,29 @@ if ($request->has('ompreng_jumlah')) {
 
         return redirect()->back()->with('success', 'Menu berhasil ditayangkan');
     }
+
+    // view status approved
+    public function viewapproved()
+    {
+        $menus = Menu::with(['items', 'user'])
+            ->where('status', 'approved')
+            ->latest()
+            ->get();
+
+        return view('Input_Menu', compact('menus'));
+    }
+
+    // delete view
+    public function deleteview($id)
+    {
+        $menu = Menu::where('id', $id)
+            ->where('status', 'approved')
+            ->firstOrFail();
+
+        $menu->delete(); // ini soft delete
+
+        return redirect()->back()->with('success', 'Menu berhasil dihapus (soft delete)');
+    }
+
 }
 

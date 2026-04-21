@@ -15,12 +15,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed roles dan permissions terlebih dahulu
+        $this->call(RolePermissionSeeder::class);
+
         // User::factory(10)->create();
 
-        User::factory()->create([
+        $adminUser = User::factory()->create([
             'name' => 'admin',
             'password' => bcrypt('admin123'),
             'role' => 'admin',
         ]);
+
+        // Assign admin role ke user (lowercase karena Spatie normalisasi)
+        $adminUser->assignRole('admin');
     }
 }

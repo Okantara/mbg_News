@@ -11,20 +11,24 @@ use App\Http\Controllers\Operasional_Controller;
 use App\Http\Controllers\MenuUsers_Controller;
 use App\Http\Controllers\Kategori_Ompreng_Controller;
 use App\Http\Controllers\Item_Controllers;
-use App\Http\Controllers\MenuController;
 use App\Http\Controllers\OmprengController;
 use App\Http\Controllers\OmprengViewController;
 use App\Http\Controllers\MenuViewController;
 use App\Http\Controllers\MenuOmprengController;
-
 use App\Http\Controllers\Rekap_Menu_Controller;
 use App\Http\Controllers\Rekap_Ompreng_Controller;
+use App\Http\Controllers\PrintToPdf;
+
+use App\Http\Controllers\MenuController;
+
+Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect('/home');
+    }
+    return redirect('/login');
+});
 
 Route::get('/home', [HomeController::class, 'index'])->middleware(['auth'])->name('Home');
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -34,53 +38,83 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-// route untuk halaman biaya bahan (belanja)
-Route::resource('belanja', Belanja_Controller::class);
+// ============ ROUTES DENGAN PERMISSION CHECK ============
 
-// route untuk halaman rekap belanja
-Route::get('/rekap-belanja', [Rekap_Belanja_controller::class, 'index'])->name('rekap_belanja');
+// 1. HALAMAN BIAYA BELANJA (Isi Biaya Belanja)
+Route::middleware(['auth', 'checkPagePermission:Isi Biaya Belanja'])->group(function () {
+    Route::resource('belanja', Belanja_Controller::class);
+});
 
-// route untuk halaman operasional
-Route::resource('operasional', Operasional_Controller::class);
+// 2. HALAMAN REKAP BIAYA BELANJA (Tabel Biaya Belanja)
+Route::get('/rekap-belanja', [Rekap_Belanja_controller::class, 'index'])
+    ->middleware(['auth', 'checkPagePermission:Tabel Biaya Belanja'])
+    ->name('rekap_belanja');
 
-// route untuk halaman rekap operasional
+// 3. HALAMAN OPERASIONAL (Isi Operasional)
+Route::middleware(['auth', 'checkPagePermission:Isi Operasional'])->group(function () {
+    Route::resource('operasional', Operasional_Controller::class);
+});
+
+// 4. HALAMAN REKAP OPERASIONAL (Tabel Operasional)
 Route::get('/Rekap_Operasional_Controller', [Rekap_Operasional_Controller::class, 'index'])
+    ->middleware(['auth', 'checkPagePermission:Tabel Operasional'])
     ->name('rekap.operasional');
 
-// route untuk halaman manajemen pengguna
-Route::get('/password', [MenuUsers_Controller::class, 'index'])->name('users.index');
-Route::put('/password/{id}', [MenuUsers_Controller::class, 'update'])->name('users.update');
+// 5. HALAMAN MANAJEMEN PENGGUNA - ADMIN ONLY (Password)
+Route::middleware(['auth', 'checkPagePermission:Password'])->group(function () {
+    Route::get('/password', [MenuUsers_Controller::class, 'index'])->name('users.index');
+    Route::put('/password/{id}', [MenuUsers_Controller::class, 'update'])->name('users.update');
+    Route::put('/password/{id}/role', [MenuUsers_Controller::class, 'updateRole'])->name('users.updateRole');
+    Route::put('/password/{id}/permissions', [MenuUsers_Controller::class, 'updatePermissions'])->name('users.updatePermissions');
+    Route::post('/password/role-permissions', [MenuUsers_Controller::class, 'updateRolePermissions'])->name('users.updateRolePermissions');
+});
 
-// route untuk halaman kategori dan ompreng
-Route::get('/kategori-ompreng', [OmprengViewController::class, 'index'])->name('kategori.index');
-Route::post('/kategori/store', [Kategori_Ompreng_Controller::class, 'store'])->name('kategori.store');
-Route::put('/kategori/{id}', [Kategori_Ompreng_Controller::class, 'update'])->name('kategori.update');
-Route::delete('/kategori/{id}', [Kategori_Ompreng_Controller::class, 'destroy'])->name('kategori.destroy');
+// 6. HALAMAN KATEGORI DAN OMPRENG (Isi Kategori)
+Route::middleware(['auth', 'checkPagePermission:Isi Kategori'])->group(function () {
+    Route::get('/kategori-ompreng', [OmprengViewController::class, 'index'])->name('kategori.index');
+    Route::post('/kategori/store', [Kategori_Ompreng_Controller::class, 'store'])->name('kategori.store');
+    Route::put('/kategori/{id}', [Kategori_Ompreng_Controller::class, 'update'])->name('kategori.update');
+    Route::delete('/kategori/{id}', [Kategori_Ompreng_Controller::class, 'destroy'])->name('kategori.destroy');
 
-Route::post('/ompreng/store', [OmprengViewController::class, 'store'])->name('ompreng.store');
-Route::put('/ompreng/{id}', [OmprengViewController::class, 'update'])->name('ompreng.update');
-Route::delete('/ompreng/{id}', [OmprengViewController::class, 'destroy'])->name('ompreng.destroy');
+    Route::post('/ompreng/store', [OmprengViewController::class, 'store'])->name('ompreng.store');
+    Route::put('/ompreng/{id}', [OmprengViewController::class, 'update'])->name('ompreng.update');
+    Route::delete('/ompreng/{id}', [OmprengViewController::class, 'destroy'])->name('ompreng.destroy');
 
-// route untuk halaman menu (view)
-Route::get('/menu', [MenuViewController::class, 'index'])->name('menu.index');
-Route::post('/menu/store', [MenuViewController::class, 'store'])->name('menu.store');
-Route::delete('/menu/{id}', [MenuViewController::class, 'destroy'])->name('menu.destroy');
-Route::patch('/menu/{id}/tayang', [MenuViewController::class, 'tayang'])->name('menu.tayang');
+    Route::get('/item-menu', [Item_Controllers::class, 'index'])->name('item.index');
+    Route::post('/item-menu/store', [Item_Controllers::class, 'store'])->name('item.store');
+    Route::delete('/item-menu/{id}', [Item_Controllers::class, 'destroy'])->name('item.destroy');
+});
 
-// route untuk halaman item menu
-Route::get('/item-menu', [Item_Controllers::class, 'index'])->name('item.index');
-Route::post('/item-menu/store', [Item_Controllers::class, 'store'])->name('item.store');
-Route::delete('/item-menu/{id}', [Item_Controllers::class, 'destroy'])->name('item.destroy');
+// 7. HALAMAN MENU (Isi Menu MBG)
+Route::middleware(['auth', 'checkPagePermission:Isi Menu MBG'])->group(function () {
+    Route::get('/menu', [MenuViewController::class, 'index'])->name('menu.index');
+    Route::post('/menu/store', [MenuViewController::class, 'store'])->name('menu.store');
+    Route::delete('/menu/{id}', [MenuViewController::class, 'destroy'])->name('menu.destroy');
+    Route::patch('/menu/{id}/tayang', [MenuViewController::class, 'tayang'])->name('menu.tayang');
+    Route::delete('/menu/{id}/soft', [MenuViewController::class, 'deleteview'])->name('menu.delete');
+});
 
-Route::apiResource('menus', MenuController::class);
-Route::apiResource('ompreng', OmprengController::class);
-
-Route::post('menus/{id}/attach-ompreng', [MenuOmprengController::class, 'attachOmpreng']);
-Route::delete('menus/{menuId}/detach-ompreng/{omprengId}', [MenuOmprengController::class, 'detachOmpreng']);
-
-// route untuk halaman rekap menu
+// 8. HALAMAN REKAP MENU (Tabel Rekap Menu)
 Route::get('/rekap-menu', [Rekap_Menu_Controller::class, 'index'])
+    ->middleware(['auth', 'checkPagePermission:Tabel Rekap Menu'])
     ->name('rekap.menu');
 
-// route untuk halaman rekap ompreng
-Route::get('/rekap-ompreng', [Rekap_Ompreng_Controller::class, 'index'])->name('rekap.ompreng');
+// 9. HALAMAN REKAP OMPRENG (Tabel Rekap Ompreng)
+Route::get('/rekap-ompreng', [Rekap_Ompreng_Controller::class, 'index'])
+    ->middleware(['auth', 'checkPagePermission:Tabel Rekap Ompreng'])
+    ->name('rekap.ompreng');
+
+// 10. API ROUTES (LESS RESTRICTED)
+Route::middleware('auth')->group(function () {
+    Route::apiResource('menus', MenuController::class);
+    Route::apiResource('ompreng', OmprengController::class);
+    
+    Route::post('menus/{id}/attach-ompreng', [MenuOmprengController::class, 'attachOmpreng']);
+    Route::delete('menus/{menuId}/detach-ompreng/{omprengId}', [MenuOmprengController::class, 'detachOmpreng']);
+});
+
+// print
+Route::get('/rekap-menu/pdf', [PrintToPdf::class, 'rekapMenuPdf'])
+    ->name('rekap.menu.pdf');
+Route::get('/rekap-ompreng/pdf', [PrintToPdf::class, 'rekapOmprengPdf'])
+    ->name('rekap.ompreng.pdf');

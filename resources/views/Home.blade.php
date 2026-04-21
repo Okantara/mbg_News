@@ -59,11 +59,11 @@
         <div class="col-span-4 grid gap-2">
             
             @forelse($menu->omprengs as $item)
-                <div class="bg-yellow-300 rounded px-2 py-1">
-                    <div class="font-bold">
+                <div class="bg-blue-900 rounded px-2 py-1">
+                    <div class="font-bold text-xl text-white">
                         {{$item->jumlah}}
                     </div>
-                    <div class="text-xs">
+                    <div class="text-xs text-white">
                         {{ $item->kategori_penerima }}
                     </div>
                 </div>

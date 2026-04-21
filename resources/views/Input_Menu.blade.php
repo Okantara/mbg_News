@@ -27,14 +27,16 @@
     </div>
   @endif
 
-  {{-- ================= FORM INPUT ================= --}}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+  {{-- ================= KOLOM FORM INPUT ================= --}}
   <div class="flex justify-center">
     <form action="{{ route('menu.store') }}" method="POST"
-      class="border border-black p-4 flex flex-col gap-3 w-full max-w-xl">
+      class="border border-black p-4 flex flex-col gap-3 w-full">
 
       @csrf
 
-      {{-- Hari --}}
+      <!-- {{-- Hari --}}
       <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
         <span class="bg-yellow-300 font-bold px-3 py-2 w-full sm:w-32 text-center border border-black text-sm">
           Hari
@@ -42,7 +44,7 @@
         <input type="text" name="hari"
           class="w-full border border-black h-10 px-3 text-sm font-semibold"
           value="{{ now()->format('l') }}" readonly>
-      </div>
+      </div> -->
 
       {{-- Tanggal --}}
       <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
@@ -73,14 +75,13 @@
         @endforeach
       </div>
 
-      {{-- Ompreng (STYLE BARU GRID) --}}
+      {{-- Ompreng --}}
       <div class="mt-4">
         <p class="text-xs font-bold mb-2">Isi Data Ompreng</p>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 border border-black rounded p-2">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 border border-black rounded p-2">
           @foreach ($ompreng as $o)
             <div class="flex flex-col items-center">
-
               <input type="number"
                 name="ompreng_jumlah[{{ $o->id }}]"
                 min="0" value="0"
@@ -89,7 +90,6 @@
               <span class="text-[10px] text-center font-semibold">
                 {{ $o->Kategori_penerima }}
               </span>
-
             </div>
           @endforeach
         </div>
@@ -120,6 +120,47 @@
   </div>
 
 
+  {{-- ================= KOLOM HAPUS MENU ================= --}}
+  <div class="border border-gray-400 p-4">
+    <h1 class="text-lg font-bold mb-3 text-center">Hapus Daftar Menu Tayang</h1>
+
+    <div class="overflow-x-auto">
+      <table class="w-full border border-black text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="border border-black px-3 py-2">Tanggal</th>
+            <th class="border border-black px-3 py-2">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($menusApproved as $menu)
+          <tr>
+            <td class="border border-black px-3 py-2 text-center">
+              {{ $menu->tanggal }}
+            </td>
+
+            <td class="border border-black px-3 py-2 text-center">
+              <form action="{{ route('menu.delete', $menu->id) }}" method="POST">
+                @csrf
+                @method('DELETE')
+
+                <button
+                  onclick="return confirm('Yakin mau hapus menu ini?')"
+                  class="bg-red-500 text-white font-bold px-3 py-1 text-sm hover:bg-red-600">
+                  Hapus
+                </button>
+              </form>
+            </td>
+          </tr>
+          @endforeach
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+
   {{-- ================= LIST MENU ================= --}}
   <div class="mt-12 text-center">
     <h1 class="text-2xl sm:text-3xl font-bold italic">Menu Sebelum Tayang</h1>
@@ -136,7 +177,7 @@
           Hari
         </span>
         <input type="text"
-          value="{{ \Carbon\Carbon::parse($menu->tanggal)->translatedFormat('l') }}"
+          value="{{ \Carbon\Carbon::parse($menu->tanggal)->locale('id')->translatedFormat('l') }}"
           class="w-full border border-black h-10 px-3 text-sm"
           readonly>
       </div>

@@ -34,7 +34,7 @@
             </button>
 
             <button type="button"
-                onclick="window.print()"
+                onclick="window.open('{{ route('rekap.menu.pdf', request()->all()) }}')"
                 class="bg-gray-800 text-white px-5 py-2 rounded">
                 Print
             </button>
